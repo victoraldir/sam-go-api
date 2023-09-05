@@ -1,0 +1,6 @@
+{
+    "Parameters": {
+        "TABLE_NAME": "birthday",
+        "ENV": "prod"
+    }
+}

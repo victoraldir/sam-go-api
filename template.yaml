@@ -1,0 +1,125 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam-go-api
+  
+  Sample SAM API in Go
+
+Globals:
+  Function:
+    Timeout: 5
+    MemorySize: 128
+    Architectures: ["arm64"]
+    Handler: bootstrap
+    Runtime: provided.al2
+
+Parameters:
+  Env:
+    Type: String
+    Default: prod
+  TableName:
+    Type: String
+    Default: birthday
+
+Resources:
+  PutBirthdayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/functions/put-birthday/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BirthdayTable
+      Events:
+        PutBirthday:
+          Type: Api
+          Properties:
+            Path: /hello/{username}
+            Method: PUT
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+          ENV: !Ref Env
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+        Alarms:
+          # A list of alarms that you want to monitor
+          - !Ref ErrorMetricGreaterThanZeroPutBirthdayAlarm
+    Metadata:
+      BuildMethod: makefile
+
+  ErrorMetricGreaterThanZeroPutBirthdayAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if errors greater than zero for PutBirthdayFunction"
+      Namespace: "AWS/Lambda"
+      MetricName: "Errors"
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref PutBirthdayFunction
+      Statistic: "Sum"
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: "GreaterThanThreshold"
+
+  GetBirthdayFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/functions/get-birthday/
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref BirthdayTable
+      Events:
+        GetBirthday:
+          Type: Api
+          Properties:
+            Path: /hello/{username}
+            Method: GET
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref TableName
+          ENV: !Ref Env
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+        Alarms:
+          # A list of alarms that you want to monitor
+          - !Ref ErrorMetricGreaterThanZeroGetBirthdayAlarm
+    Metadata:
+      BuildMethod: makefile
+
+  ErrorMetricGreaterThanZeroGetBirthdayAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: "Alarm if errors greater than zero for GetBirthdayFunction"
+      Namespace: "AWS/Lambda"
+      MetricName: "Errors"
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref GetBirthdayFunction
+      Statistic: "Sum"
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 0
+      ComparisonOperator: "GreaterThanThreshold"
+
+  BirthdayTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: username
+        Type: String
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+      TableName: birthday
+
+
+Outputs:
+  PutBirthdayAPI:
+    Description: "API Gateway endpoint URL for Prod environment for PutBirthday Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"
+  GetBirthdayAPI:
+    Description: "API Gateway endpoint URL for Prod environment for GetBirthday Function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"

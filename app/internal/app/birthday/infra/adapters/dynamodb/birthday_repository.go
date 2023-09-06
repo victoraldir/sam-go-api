@@ -1,8 +1,6 @@
 package dynamodb
 
 import (
-	"log"
-
 	"github.com/victoraldir/birthday-api/app/internal/app/birthday/domain"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,13 +8,19 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
+//go:generate mockgen -destination=../dynamodb/mocks/mockDynamodDBClient.go -package=dynamodb github.com/victoraldir/birthday-api/app/internal/app/birthday/infra/adapters/dynamodb DynamodDBClient
+type DynamodDBClient interface {
+	PutItem(input *dynamodb.PutItemInput) (*dynamodb.PutItemOutput, error)
+	GetItem(input *dynamodb.GetItemInput) (*dynamodb.GetItemOutput, error)
+}
+
 type birthdayRepo struct {
-	client    *dynamodb.DynamoDB
+	client    DynamodDBClient
 	tableName string
 }
 
 // NewBirthdayRepository returns a new instance of a DynamoDB birthday repository.
-func NewBirthdayRepo(client *dynamodb.DynamoDB, tableName string) domain.BirthdayRepository {
+func NewBirthdayRepo(client DynamodDBClient, tableName string) domain.BirthdayRepository {
 	return birthdayRepo{
 		client:    client,
 		tableName: tableName,
@@ -25,19 +29,16 @@ func NewBirthdayRepo(client *dynamodb.DynamoDB, tableName string) domain.Birthda
 
 func (r birthdayRepo) PutBirthday(birthday domain.Birthday) error {
 
-	bday, err := dynamodbattribute.MarshalMap(birthday)
-	if err != nil {
-		log.Fatalf("Got error marshalling new movie item: %s", err)
-	}
+	bday, _ := dynamodbattribute.MarshalMap(birthday)
 
 	input := &dynamodb.PutItemInput{
 		Item:      bday,
 		TableName: aws.String(r.tableName),
 	}
 
-	_, err = r.client.PutItem(input)
+	_, err := r.client.PutItem(input)
 	if err != nil {
-		log.Fatalf("Got error calling PutItem: %s", err)
+		return err
 	}
 
 	return nil
@@ -55,14 +56,11 @@ func (r birthdayRepo) GetBirthday(username string) (string, error) {
 
 	result, err := r.client.GetItem(input)
 	if err != nil {
-		log.Fatalf("Got error calling GetItem: %s", err)
+		return "", err
 	}
 
 	birthday := domain.Birthday{}
-	err = dynamodbattribute.UnmarshalMap(result.Item, &birthday)
-	if err != nil {
-		log.Fatalf("Got error unmarshalling: %s", err)
-	}
+	dynamodbattribute.UnmarshalMap(result.Item, &birthday)
 
 	return birthday.DateOfBirth, nil
 }

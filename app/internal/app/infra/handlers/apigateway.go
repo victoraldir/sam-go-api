@@ -73,6 +73,13 @@ func (h *APIGatewayV2Handler) GetBirthdayHandler(request events.APIGatewayProxyR
 
 	userName := request.PathParameters["username"]
 
+	if userName == "" {
+		return events.APIGatewayProxyResponse{
+			StatusCode: 400,
+			Body:       "username is required",
+		}, nil
+	}
+
 	getBirthdayResponseUc, err := h.GetBirthdayUseCase.Execute(userName)
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err

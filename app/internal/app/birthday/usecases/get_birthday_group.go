@@ -9,6 +9,7 @@ import (
 	errorcode "github.com/victoraldir/birthday-api/app/pkg/error_code"
 )
 
+//go:generate mockgen -destination=../usecases/mocks/mockGetBirthdayUseCase.go -package=usecases github.com/victoraldir/birthday-api/app/internal/app/birthday/usecases GetBirthdayUseCase
 type GetBirthdayUseCase interface {
 	Execute(username string) (*GetBirthdayResponse, error)
 }

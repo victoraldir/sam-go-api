@@ -18,6 +18,7 @@ type PutBirthdayResponse struct {
 	ErrorMsg  string              `json:"errorMsg"`
 }
 
+//go:generate mockgen -destination=../usecases/mocks/mockPutBirthdayUseCase.go -package=usecases github.com/victoraldir/birthday-api/app/internal/app/birthday/usecases PutBirthdayUseCase
 type PutBirthdayUseCase interface {
 	Execute(command PutBirthdayCommand) (*PutBirthdayResponse, error)
 }

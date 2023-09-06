@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 
 	"github.com/victoraldir/birthday-api/app/internal/app/birthday/usecases"
@@ -24,22 +23,6 @@ func NewAPIGatewayV2Handler(putBirthdayUseCase usecases.PutBirthdayUseCase, getB
 		PutBirthdayUseCase: putBirthdayUseCase,
 		GetBirthdayUseCase: getBirthdayUseCase,
 	}
-}
-
-func (h *APIGatewayV2Handler) HelloHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	var greeting string
-	sourceIP := request.RequestContext.Identity.SourceIP
-
-	if sourceIP == "" {
-		greeting = "Hello, world!\n"
-	} else {
-		greeting = fmt.Sprintf("Hello, %s!. V4\n", sourceIP)
-	}
-
-	return events.APIGatewayProxyResponse{
-		Body:       greeting,
-		StatusCode: 200,
-	}, nil
 }
 
 func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {

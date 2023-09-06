@@ -44,7 +44,6 @@ func (useCase *getBirthDayUseCase) Execute(username string) (*GetBirthdayRespons
 		}, nil
 	}
 
-	// convert string YYYY-MM-DD to date
 	date, err := time.Parse("2006-01-02", birthday)
 
 	if err != nil {

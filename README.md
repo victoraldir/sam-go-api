@@ -1,17 +1,48 @@
+![build](https://github.com/victoraldir/sam-go-api/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/github/victoraldir/sam-go-api/graph/badge.svg?token=5HRL3HC8Z4)](https://codecov.io/github/victoraldir/sam-go-api)
 
-# sam-go-api
+[![LinkedIn][linkedin-shield]][linkedin-url]
 
-This is a sample template for sam-go-api - Below is a brief explanation of what we have generated for you:
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="#">
+    <img src="assets/workflow_icon.png" alt="Logo" width="80" height="80">
+  </a>
+
+<h3 align="center">Task Parser / Executer</h3>
+
+  <p align="center">
+    Birthday countdown API written in Golang and deployed using AWS SAM.
+    <br />
+    <a href="https://linktr.ee/victoraldir"><strong>By Victor Hugo ❤️ »</strong></a>
+    <br />
+    <br />
+  </p>
+</p>
+
+# SAM Go API
+
+<p align="center">
+  <img src="assets/diagram.png" alt="Architecture diagram"/>
+</p>
+
+This is a sample application that uses [AWS Serverless Application Model (SAM)](https://aws.amazon.com/serverless/sam/) to build a simple API written in Golang. The API supports the following operations:
+
+* `GET /hello/<username>`: Returns hello birthday `json message` for the given user.
+* `PUT /hello/<username>`: Saves/updates the given user’s name and date of birth in the database.
+
+The API is defined in the [template.yaml](template.yaml) file in this project. This file uses the SAM template format and CloudFormation syntax to declare the API resources (e.g. API Gateway, Lambda) used in the application.
+
+
+Below is a brief explanation of the project structure:
 
 ```bash
 .
 ├── Makefile                    <-- Make to automate build
 ├── README.md                   <-- This instructions file
-├── hello-world                 <-- Source code for a lambda function
-│   ├── main.go                 <-- Lambda function code
-│   └── main_test.go            <-- Unit tests
-└── template.yaml
+├── app                         <-- Source code for the lambda functions
+└── template.yaml               <-- SAM template
 ```
 
 ## Requirements
@@ -38,108 +69,38 @@ make
 
 **Invoking function locally through local API Gateway**
 
-```bash
-sam local start-api
-```
-
-If the previous command ran successfully you should now be able to hit the following local endpoint to invoke your function `http://localhost:3000/hello`
-
-**SAM CLI** is used to emulate both Lambda and API Gateway locally and uses our `template.yaml` to understand how to bootstrap this environment (runtime, where the source code is, etc.) - The following excerpt is what the CLI will read in order to initialize an API and its routes:
-
-```yaml
-...
-Events:
-    HelloWorld:
-        Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-        Properties:
-            Path: /hello
-            Method: get
-```
-
-## Packaging and deployment
-
-AWS Lambda Golang runtime requires a flat folder with the executable generated on build step. SAM will use `CodeUri` property to know where to look up for the application:
-
-```yaml
-...
-    FirstFunction:
-        Type: AWS::Serverless::Function
-        Properties:
-            CodeUri: hello_world/
-            ...
-```
-
-To deploy your application for the first time, run the following in your shell:
+This project uses dynamodDB as a database. To run dynamoDB locally, run the following command:
 
 ```bash
-sam deploy --guided
+make run-local
 ```
 
-The command will package and deploy your application to AWS, with a series of prompts:
+If the previous command ran successfully you should now be able to hit the following local endpoint to invoke the functions:
 
-* **Stack Name**: The name of the stack to deploy to CloudFormation. This should be unique to your account and region, and a good starting point would be something matching your project name.
-* **AWS Region**: The AWS region you want to deploy your app to.
-* **Confirm changes before deploy**: If set to yes, any change sets will be shown to you before execution for manual review. If set to no, the AWS SAM CLI will automatically deploy application changes.
-* **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
-* **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
+* http://127.0.0.1:3000/hello/{username} [PUT]  
+* http://127.0.0.1:3000/hello/{username} [GET]
 
-You can find your API Gateway Endpoint URL in the output values displayed after deployment.
+### Deployment strategy
 
-### Testing
+This API is configured to automatically deploy changes using **Canary10Percent5Minutes** deployment strategy. This means that every time a new version of the API is deployed, 10% of the traffic is routed to the new version and 90% to the old version. After 5 minutes, 100% of the traffic is routed to the new version.
 
-We use `testing` package that is built-in in Golang and you can simply run the following command to run our tests:
+Clouddeploy will look check the status of alarms and if they are in `ALARM` state, the deployment will be rolled back.
 
-```shell
-cd ./hello-world/
-go test -v .
-```
-# Appendix
+<p align="center">
+  <img src="assets/canary.png" alt="Architecture diagram"/>
+</p>
 
-### Golang installation
 
-Please ensure Go 1.x (where 'x' is the latest version) is installed as per the instructions on the official golang website: https://golang.org/doc/install
+### Observability
 
-A quickstart way would be to use Homebrew, chocolatey or your linux package manager.
+This API is configured to send logs to CloudWatch and X-Ray. To see the logs, go to the CloudWatch console and look for the `/aws/lambda/bday-api-*` log group(s).
 
-#### Homebrew (Mac)
+To see the traces, go to the X-Ray console and look for the `bday-api-*` service map.
 
-Issue the following command from the terminal:
+<p align="center">
+  <img src="assets/servicemap.png" alt="Architecture diagram"/>
+</p>
 
-```shell
-brew install golang
-```
-
-If it's already installed, run the following command to ensure it's the latest version:
-
-```shell
-brew update
-brew upgrade golang
-```
-
-#### Chocolatey (Windows)
-
-Issue the following command from the powershell:
-
-```shell
-choco install golang
-```
-
-If it's already installed, run the following command to ensure it's the latest version:
-
-```shell
-choco upgrade golang
-```
-
-## Bringing to the next level
-
-Here are a few ideas that you can use to get more acquainted as to how this overall process works:
-
-* Create an additional API resource (e.g. /hello/{proxy+}) and return the name requested through this new path
-* Update unit test to capture that
-* Package & Deploy
-
-Next, you can use the following resources to know more about beyond hello world samples and how others structure their Serverless applications:
-
-* [AWS Serverless Application Repository](https://aws.amazon.com/serverless/serverlessrepo/)
-
-force deploy...
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/victoraldir
+[dot]: assets/dot-on.png

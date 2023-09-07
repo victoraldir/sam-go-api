@@ -1,0 +1,44 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go:
+          - "1.21"
+    steps:
+      - name: Set up Go ${{ matrix.go }}
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go }}
+        id: go
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2
+
+      - name: Cache go modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ matrix.go }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-${{ matrix.go }}
+
+      - name: Run linter
+        if: matrix.go == '1.21'
+        run: make lint
+
+      - name: Run tests app directory
+        rrun: make test
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        if: matrix.go == '1.21'
+        with:
+          files: ./coverage.txt

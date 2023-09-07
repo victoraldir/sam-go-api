@@ -20,9 +20,9 @@ jobs:
       - name: Check out code into the Go module directory
         uses: actions/checkout@v2
     
-      - name: build and test
+      - name: Test
         run: |
-          make build && make test
+          make test
       
       - name: Deploy
         run : make deploy

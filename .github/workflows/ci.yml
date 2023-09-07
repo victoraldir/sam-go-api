@@ -35,7 +35,7 @@ jobs:
         run: make lint
 
       - name: Run tests app directory
-        rrun: make test
+        run: make test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2

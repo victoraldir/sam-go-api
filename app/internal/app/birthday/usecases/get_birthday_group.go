@@ -7,6 +7,7 @@ import (
 	"github.com/victoraldir/birthday-api/app/internal/app/birthday/domain"
 	"github.com/victoraldir/birthday-api/app/pkg/datetime"
 	errorcode "github.com/victoraldir/birthday-api/app/pkg/error_code"
+	"golang.org/x/exp/slog"
 )
 
 //go:generate mockgen -destination=../usecases/mocks/mockGetBirthdayUseCase.go -package=usecases github.com/victoraldir/birthday-api/app/internal/app/birthday/usecases GetBirthdayUseCase
@@ -32,8 +33,12 @@ func NewGetBirthDayUseCase(repository domain.BirthdayRepository) GetBirthdayUseC
 }
 
 func (useCase *getBirthDayUseCase) Execute(username string) (*GetBirthdayResponse, error) {
+
+	slog.Debug("Executing GetBirthdayUseCase with username: %s", username)
+
 	birthday, err := useCase.repository.GetBirthday(username)
 	if err != nil {
+		slog.Error("Error executing repository GetBirthday: %s", err)
 		return nil, err
 	}
 

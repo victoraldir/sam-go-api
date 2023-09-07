@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/victoraldir/birthday-api/app/internal/app/birthday/usecases"
+	"golang.org/x/exp/slog"
 
 	"github.com/aws/aws-lambda-go/events"
 )
@@ -27,8 +27,11 @@ func NewAPIGatewayV2Handler(putBirthdayUseCase usecases.PutBirthdayUseCase, getB
 
 func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
+	slog.Debug("Received request %s", request)
+
 	userName := request.PathParameters["username"]
 	if userName == "" {
+		slog.Warn("username is required")
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "username is required",
@@ -36,14 +39,10 @@ func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyR
 	}
 
 	var putBirthdayCommand usecases.PutBirthdayCommand
-	err := json.Unmarshal([]byte(request.Body), &putBirthdayCommand)
-
-	if err != nil {
-		log.Println("Error unmarshalling request body", err)
-		return events.APIGatewayProxyResponse{}, err
-	}
+	json.Unmarshal([]byte(request.Body), &putBirthdayCommand)
 
 	if putBirthdayCommand.DateOfBirth == "" {
+		slog.Warn("dateOfBirth is required")
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "dateOfBirth is required",
@@ -54,10 +53,12 @@ func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyR
 
 	response, err := h.PutBirthdayUseCase.Execute(putBirthdayCommand)
 	if err != nil {
+		slog.Error("Error executing PutBirthdayUseCase: %s", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 
 	if response.ErrorType != "" {
+		slog.Warn("Error executing PutBirthdayUseCase: %s", response.ErrorMsg)
 		return events.APIGatewayProxyResponse{
 			Body:       response.ErrorMsg,
 			StatusCode: response.ErrorCode,
@@ -71,9 +72,12 @@ func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyR
 
 func (h *APIGatewayV2Handler) GetBirthdayHandler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 
+	slog.Debug("Received request %s", request)
+
 	userName := request.PathParameters["username"]
 
 	if userName == "" {
+		slog.Warn("username is required")
 		return events.APIGatewayProxyResponse{
 			StatusCode: 400,
 			Body:       "username is required",
@@ -82,10 +86,12 @@ func (h *APIGatewayV2Handler) GetBirthdayHandler(request events.APIGatewayProxyR
 
 	getBirthdayResponseUc, err := h.GetBirthdayUseCase.Execute(userName)
 	if err != nil {
+		slog.Error("Error executing GetBirthdayUseCase: %s", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 
 	if getBirthdayResponseUc.ErrorType != "" {
+		slog.Warn("Error executing GetBirthdayUseCase: %s", getBirthdayResponseUc.ErrorMsg)
 		return events.APIGatewayProxyResponse{
 			Body:       getBirthdayResponseUc.ErrorMsg,
 			StatusCode: getBirthdayResponseUc.ErrorCode,
@@ -98,6 +104,7 @@ func (h *APIGatewayV2Handler) GetBirthdayHandler(request events.APIGatewayProxyR
 
 	body, err := json.Marshal(getBirthdayResponse)
 	if err != nil {
+		slog.Error("Error marshalling response body: %s", err)
 		return events.APIGatewayProxyResponse{}, err
 	}
 

@@ -25,6 +25,7 @@ Resources:
   PutBirthdayFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Tracing: Active
       CodeUri: app/functions/put-birthday/
       Policies:
         - DynamoDBCrudPolicy:
@@ -66,6 +67,7 @@ Resources:
   GetBirthdayFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Tracing: Active
       CodeUri: app/functions/get-birthday/
       Policies:
         - DynamoDBCrudPolicy:

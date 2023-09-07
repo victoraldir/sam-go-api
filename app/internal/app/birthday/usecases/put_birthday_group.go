@@ -2,6 +2,7 @@ package usecases
 
 import (
 	errorcode "github.com/victoraldir/birthday-api/app/pkg/error_code"
+	"golang.org/x/exp/slog"
 
 	"github.com/victoraldir/birthday-api/app/internal/app/birthday/domain"
 )
@@ -35,6 +36,8 @@ func NewPutBirthDayUseCase(repository domain.BirthdayRepository) PutBirthdayUseC
 
 func (useCase *putBirthDayUseCase) Execute(command PutBirthdayCommand) (*PutBirthdayResponse, error) {
 
+	slog.Debug("Executing PutBirthdayUseCase with command: %s", command)
+
 	commandDomain := domain.Birthday{
 		Username:    command.Username,
 		DateOfBirth: command.DateOfBirth,
@@ -60,6 +63,7 @@ func (useCase *putBirthDayUseCase) Execute(command PutBirthdayCommand) (*PutBirt
 
 	err := useCase.repository.PutBirthday(commandDomain)
 	if err != nil {
+		slog.Error("Error executing repository PutBirthday: %s", err)
 		return nil, err
 	}
 

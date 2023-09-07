@@ -41,7 +41,7 @@ Resources:
           ENV: !Ref Env
       AutoPublishAlias: live
       DeploymentPreference:
-        Type: AllAtOnce
+        Type: Canary10Percent5Minutes
         Alarms:
           # A list of alarms that you want to monitor
           - !Ref ErrorMetricGreaterThanZeroPutBirthdayAlarm
@@ -82,7 +82,7 @@ Resources:
           ENV: !Ref Env
       AutoPublishAlias: live
       DeploymentPreference:
-        Type: AllAtOnce
+        Type: Canary10Percent5Minutes
         Alarms:
           # A list of alarms that you want to monitor
           - !Ref ErrorMetricGreaterThanZeroGetBirthdayAlarm

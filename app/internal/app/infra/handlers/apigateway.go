@@ -39,12 +39,7 @@ func (h *APIGatewayV2Handler) PutBirthdayHandler(request events.APIGatewayProxyR
 	}
 
 	var putBirthdayCommand usecases.PutBirthdayCommand
-	err := json.Unmarshal([]byte(request.Body), &putBirthdayCommand)
-
-	if err != nil {
-		slog.Error("Error unmarshalling request body: %s", err)
-		return events.APIGatewayProxyResponse{}, err
-	}
+	json.Unmarshal([]byte(request.Body), &putBirthdayCommand)
 
 	if putBirthdayCommand.DateOfBirth == "" {
 		slog.Warn("dateOfBirth is required")

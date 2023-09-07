@@ -17,8 +17,8 @@ build-%:
 
 deploy: build
 	if [ -f samconfig.toml ]; \
-		then sam deploy --stack-name ${STACK_NAME} --region ${REGION} -no-confirm-changeset; \
-		else sam deploy -g --stack-name ${STACK_NAME} --region ${REGION} -no-confirm-changeset; \
+		then sam deploy --stack-name ${STACK_NAME} --region ${REGION} --no-confirm-changeset; \
+		else sam deploy -g --stack-name ${STACK_NAME} --region ${REGION} --no-confirm-changeset; \
   	fi
 
 test:

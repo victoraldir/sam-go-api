@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/github/victoraldir/sam-go-api/graph/badge.svg?token=5HRL3HC8Z4)](https://codecov.io/github/victoraldir/sam-go-api)
+
 # sam-go-api
 
 This is a sample template for sam-go-api - Below is a brief explanation of what we have generated for you:

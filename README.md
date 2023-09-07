@@ -1,3 +1,4 @@
+![build](https://github.com/victoraldir/sam-go-api/actions/workflows/ci.yml/badge.svg)
 [![codecov](https://codecov.io/github/victoraldir/sam-go-api/graph/badge.svg?token=5HRL3HC8Z4)](https://codecov.io/github/victoraldir/sam-go-api)
 
 [![LinkedIn][linkedin-shield]][linkedin-url]

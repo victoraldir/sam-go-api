@@ -107,21 +107,33 @@ func TestPutBirthdayUseCase(t *testing.T) {
 
 	t.Run("Should return error response when date of birth is in the future", func(t *testing.T) {
 		useCase := NewPutBirthDayUseCase(mirthdayRepositoryMock)
+
 		todayNextYear := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
+		tomorrow := time.Now().AddDate(0, 0, 1).Format("2006-01-02")
 
-		response, err := useCase.Execute(PutBirthdayCommand{
-			Username:    "username",
-			DateOfBirth: todayNextYear,
-		})
+		dobList := []string{
+			todayNextYear,
+			tomorrow,
+		}
 
-		assert.Nil(t, err)
+		for _, dob := range dobList {
+			response, err := useCase.Execute(PutBirthdayCommand{
+				Username:    "username",
+				DateOfBirth: dob,
+			})
 
-		assert.Equal(t, "date of birth must be before today", response.ErrorMsg)
-		assert.Equal(t, 400, response.ErrorCode)
+			assert.Nil(t, err)
+
+			assert.Equal(t, "date of birth must be before today", response.ErrorMsg)
+			assert.Equal(t, 400, response.ErrorCode)
+		}
+
 	})
 
 	t.Run("Should return success response when date of birth is valid", func(t *testing.T) {
 		setup(t)
+
+		dobLastYearTomorrow := time.Now().AddDate(-1, 0, 1).Format("2006-01-02")
 
 		mirthdayRepositoryMock.EXPECT().PutBirthday(gomock.Any()).Return(nil).AnyTimes()
 
@@ -130,6 +142,7 @@ func TestPutBirthdayUseCase(t *testing.T) {
 		dobList := []string{
 			"2006-01-02",
 			"1993-09-16",
+			dobLastYearTomorrow,
 		}
 
 		for _, dob := range dobList {

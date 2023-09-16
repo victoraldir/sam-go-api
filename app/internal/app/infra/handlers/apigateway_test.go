@@ -229,4 +229,27 @@ func TestAPIGatewayV2Handler_GetBirthdayHandler(t *testing.T) {
 		assert.Equal(t, 200, response.StatusCode)
 	})
 
+	t.Run("Should return 500 if something goes wrong", func(t *testing.T) {
+
+		setup(t)
+
+		// Arrange
+
+		expectedError := fmt.Errorf("some error")
+
+		getBirthdayUseCaseMock.EXPECT().Execute(gomock.Any()).Return(nil, expectedError)
+		apiGatewayV2Handler := NewAPIGatewayV2Handler(putBirthdayUseCaseMock, getBirthdayUseCaseMock)
+
+		// Act
+		response, err := apiGatewayV2Handler.GetBirthdayHandler(events.APIGatewayProxyRequest{
+			PathParameters: map[string]string{
+				"username": "username",
+			},
+		})
+
+		// Assert
+		assert.NotNil(t, err)
+		assert.NotNil(t, response)
+	})
+
 }

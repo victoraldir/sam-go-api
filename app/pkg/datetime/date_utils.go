@@ -71,10 +71,5 @@ func IsBeforeToday(dateStr string) bool {
 		return false
 	}
 
-	// Check if date is today
-	if IsToday(dateTime) {
-		return false
-	}
-
 	return dateTime.Before(time.Now())
 }

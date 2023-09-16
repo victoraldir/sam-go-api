@@ -143,7 +143,7 @@ func TestIsBeforeToday(t *testing.T) {
 		assert.True(t, result, "Date is before today")
 	})
 
-	t.Run("Should return false if date is today", func(t *testing.T) {
+	t.Run("Should return true if date is today", func(t *testing.T) {
 
 		// Arrange
 		dateStr := time.Now().Format("2006-01-02")
@@ -152,7 +152,7 @@ func TestIsBeforeToday(t *testing.T) {
 		result := IsBeforeToday(dateStr)
 
 		// Assert
-		assert.False(t, result, "Date is today")
+		assert.True(t, result, "Date is today")
 	})
 
 	t.Run("Should return false if date is after today", func(t *testing.T) {

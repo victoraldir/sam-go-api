@@ -91,6 +91,6 @@ func TestGetBirthdayUseCase_Execute(t *testing.T) {
 		response, err := useCase.Execute("username")
 
 		assert.NoError(t, err)
-		assert.Equal(t, "Hello, username! Happy birthday!", response.Message)
+		assert.Equal(t, "Hello, username! Happy birthday! V2", response.Message)
 	})
 }

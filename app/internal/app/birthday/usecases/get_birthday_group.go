@@ -60,7 +60,7 @@ func (useCase *getBirthDayUseCase) Execute(username string) (*GetBirthdayRespons
 
 	//Check if birthday is today
 	if datetime.IsToday(date) {
-		msg = fmt.Sprintf("Hello, %s! Happy birthday!", username)
+		msg = fmt.Sprintf("Hello, %s! Happy birthday! V2", username)
 		return &GetBirthdayResponse{
 			Message: msg,
 		}, nil
@@ -73,6 +73,6 @@ func (useCase *getBirthDayUseCase) Execute(username string) (*GetBirthdayRespons
 	}
 
 	return &GetBirthdayResponse{
-		Message: fmt.Sprintf("Hello, %s! Your birthday is in %d day(s)", username, daysUntil),
+		Message: fmt.Sprintf("Hello, %s! Your birthday is in %d day(s).", username, daysUntil),
 	}, nil
 }

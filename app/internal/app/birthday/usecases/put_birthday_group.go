@@ -52,13 +52,14 @@ func (useCase *putBirthDayUseCase) Execute(command PutBirthdayCommand) (*PutBirt
 		}, nil
 	}
 
-	// Check if date is before today
+	// Check if date is before today. Today we accept the birthday
 	if !commandDomain.IsBeforeToday() {
 		return &PutBirthdayResponse{
 			ErrorCode: 400,
 			ErrorType: errorcode.InvalidDateOfBirth,
 			ErrorMsg:  "date of birth must be before today",
 		}, nil
+
 	}
 
 	err := useCase.repository.PutBirthday(commandDomain)

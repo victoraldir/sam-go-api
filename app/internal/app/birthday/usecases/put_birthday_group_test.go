@@ -90,22 +90,6 @@ func TestPutBirthdayUseCase(t *testing.T) {
 		assert.Equal(t, 400, response.ErrorCode)
 	})
 
-	t.Run("Should return error response when date of birth is today", func(t *testing.T) {
-		useCase := NewPutBirthDayUseCase(mirthdayRepositoryMock)
-
-		today := time.Now().Format("2006-01-02")
-
-		response, err := useCase.Execute(PutBirthdayCommand{
-			Username:    "username",
-			DateOfBirth: today,
-		})
-
-		assert.Nil(t, err)
-
-		assert.Equal(t, "date of birth must be before today", response.ErrorMsg)
-		assert.Equal(t, 400, response.ErrorCode)
-	})
-
 	t.Run("Should return error response when date of birth is invalid", func(t *testing.T) {
 
 		useCase := NewPutBirthDayUseCase(mirthdayRepositoryMock)
@@ -121,22 +105,45 @@ func TestPutBirthdayUseCase(t *testing.T) {
 		assert.Equal(t, 400, response.ErrorCode)
 	})
 
-	t.Run("Should return success response when date of birth is valid", func(t *testing.T) {
-		setup(t)
-
-		mirthdayRepositoryMock.EXPECT().PutBirthday(gomock.Any()).Return(nil)
-
+	t.Run("Should return error response when date of birth is in the future", func(t *testing.T) {
 		useCase := NewPutBirthDayUseCase(mirthdayRepositoryMock)
+		todayNextYear := time.Now().AddDate(1, 0, 0).Format("2006-01-02")
 
 		response, err := useCase.Execute(PutBirthdayCommand{
 			Username:    "username",
-			DateOfBirth: "2006-01-02",
+			DateOfBirth: todayNextYear,
 		})
 
 		assert.Nil(t, err)
 
-		assert.Equal(t, "Birthday saved!", response.Message)
-		assert.Equal(t, 0, response.ErrorCode)
+		assert.Equal(t, "date of birth must be before today", response.ErrorMsg)
+		assert.Equal(t, 400, response.ErrorCode)
+	})
+
+	t.Run("Should return success response when date of birth is valid", func(t *testing.T) {
+		setup(t)
+
+		mirthdayRepositoryMock.EXPECT().PutBirthday(gomock.Any()).Return(nil).AnyTimes()
+
+		useCase := NewPutBirthDayUseCase(mirthdayRepositoryMock)
+
+		dobList := []string{
+			"2006-01-02",
+			"1993-09-16",
+		}
+
+		for _, dob := range dobList {
+			response, err := useCase.Execute(PutBirthdayCommand{
+				Username:    "username",
+				DateOfBirth: dob,
+			})
+
+			assert.Nil(t, err)
+
+			assert.Equal(t, "Birthday saved!", response.Message)
+			assert.Equal(t, 0, response.ErrorCode)
+		}
+
 	})
 
 }

@@ -102,11 +102,7 @@ func (h *APIGatewayV2Handler) GetBirthdayHandler(request events.APIGatewayProxyR
 		Message: getBirthdayResponseUc.Message,
 	}
 
-	body, err := json.Marshal(getBirthdayResponse)
-	if err != nil {
-		slog.Error("Error marshalling response body: %s", err)
-		return events.APIGatewayProxyResponse{}, err
-	}
+	body, _ := json.Marshal(getBirthdayResponse)
 
 	return events.APIGatewayProxyResponse{
 		Body:       string(body),

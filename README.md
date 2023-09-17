@@ -95,7 +95,7 @@ Clouddeploy will look check the status of alarms and if they are in `ALARM` stat
 
 This API is configured to send logs to CloudWatch and X-Ray. To see the logs, go to the CloudWatch console and look for the `/aws/lambda/bday-api-*` log group(s).
 
-To see the traces, go to the X-Ray console and look for the `bday-api-*` service map.
+To see the traces, go to the X-Ray console and look for the `bday-api-*` service map...
 
 <p align="center">
   <img src="assets/servicemap.png" alt="Architecture diagram"/>

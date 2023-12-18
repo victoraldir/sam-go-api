@@ -1,5 +1,5 @@
 STACK_NAME ?= bday-api
-FUNCTIONS := put-birthday get-birthday
+FUNCTIONS := put-birthday get-birthday authorizer
 REGION := us-east-1
 
 # To try different version of Go

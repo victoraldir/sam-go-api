@@ -22,6 +22,29 @@ Parameters:
     Default: birthday
 
 Resources:
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      MethodSettings:
+        - ResourcePath: /hello/{username}
+          CacheTtlInSeconds: 0
+          HttpMethod: PUT
+          
+      Auth:
+        DefaultAuthorizer: AuthorizerFunction
+        Authorizers:
+          AuthorizerFunction:
+            FunctionArn: !GetAtt AuthorizerFunction.Arn
+            Identity:
+              Header: Authorization
+              ReauthorizeEvery: 30
+              
+  AuthorizerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: app/functions/authorizer/
+
   PutBirthdayFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -36,6 +59,7 @@ Resources:
           Properties:
             Path: /hello/{username}
             Method: PUT
+            RestApiId: !Ref ApiGateway
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
@@ -48,7 +72,7 @@ Resources:
           - !Ref ErrorMetricGreaterThanZeroPutBirthdayAlarm
     Metadata:
       BuildMethod: makefile
-
+  
   ErrorMetricGreaterThanZeroPutBirthdayAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -78,6 +102,9 @@ Resources:
           Properties:
             Path: /hello/{username}
             Method: GET
+            RestApiId: !Ref ApiGateway
+            Auth:
+              Authorizer: 'NONE'
       Environment:
         Variables:
           TABLE_NAME: !Ref TableName
@@ -121,7 +148,7 @@ Resources:
 Outputs:
   PutBirthdayAPI:
     Description: "API Gateway endpoint URL for Prod environment for PutBirthday Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"
   GetBirthdayAPI:
     Description: "API Gateway endpoint URL for Prod environment for GetBirthday Function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/{username}"
